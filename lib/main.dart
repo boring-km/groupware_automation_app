@@ -1,82 +1,120 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'web.dart';
 
-void main() => runApp(MyApp());
+String id = "";
+String pw = "";
 
-class MyApp extends StatelessWidget {
+void main() {
+  runApp(AutoAttendApp());
+}
+
+class AutoAttendApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'nu!boluf',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (BuildContext context) => LoginPage(),
+        '/web': (BuildContext context) => WebPageApp(id, pw)
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
-
+class LoginPage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  Completer<WebViewController> controller = Completer<WebViewController>();
-  WebViewController webViewController;
-  FlutterWebviewPlugin flutterWebviewPlugin;
-  WebView webView;
-  int check = 0;
-  // TODO 아이디와 비밀번호를 저장해놓고 사용할 수 있게 해야한다.
-  String id = '아이디';
-  String pw = '비밀번호';
+
+class _LoginPageState extends State<LoginPage> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future<Null> _getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    id = prefs.getString("id") ?? "";
+    pw = prefs.getString("pw") ?? "";
+    if (id != "" && pw != "") {
+      Navigator.pushNamed(context, '/web');
+    }
+  }
+
+  Future<Null> _saveSharedPrefs(String id, String pw) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('id', id);
+    prefs.setString('pw', pw);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => WebPageApp(id, pw)));
+  }
 
   @override
   void initState() {
     super.initState();
-    webView = WebView(
-      initialUrl: 'http://gw.unipoint.co.kr',
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (context) {
-        this.controller.complete(context);
-        webViewController = context;
-      },
-    );
-    Timer(
-      Duration(seconds: 2), () {
-        webViewController.evaluateJavascript("document.getElementById('UserName').value = '$id';");
-        webViewController.evaluateJavascript("document.getElementById('Password').value = '$pw';");
-        webViewController.evaluateJavascript("document.getElementsByTagName('a')[0].click();");
-      }
-    );
-    Timer(
-      Duration(seconds: 5), () {
-        webViewController.evaluateJavascript("var start = document.getElementById('ltGoingHour').value;");
-        webViewController.evaluateJavascript("if(start) document.getElementById('btnAttOut').click(); "
-            " else document.getElementById('btnAttIn').click();");
-        webViewController.evaluateJavascript("document.getElementById('btnAttIn').click();");
-      }
-    );
-    Timer(
-      Duration(seconds: 7), () {
-        SystemNavigator.pop();
-        exit(0);
-      }
-    );
+    _getSharedPrefs();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: webView,
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          children: <Widget>[
+            SizedBox(height: 80.0),
+            Column(
+              children: <Widget>[
+                Image.asset(
+                  'assets/uni.png',
+                  width: 100,
+                ),
+                SizedBox(height: 16.0),
+                Text('Developed By boring-km'),
+              ],
+            ),
+            SizedBox(height: 80.0),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Username',
+              ),
+            ),
+            SizedBox(height: 12.0),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Password',
+              ),
+              obscureText: true,
+            ),
+            ButtonBar(
+              children: <Widget>[
+                RaisedButton(
+                  child: Text('저장하기'),
+                  onPressed: () {
+                    String name;
+                    String password;
+                    if(_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
+                      name = _usernameController.text;
+                      password = _passwordController.text;
+                      _saveSharedPrefs(name, password);
+                    } else {
+                      name = ""; password = "";
+                      Fluttertoast.showToast(msg: "아이디랑 비밀번호 둘다 입력 필요");
+                    }
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
