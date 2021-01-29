@@ -1,80 +1,105 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+import 'web.dart';
 
-String _name = "";
-String _password = "";
+void main() {
+  runApp(AutoAttendApp());
+}
 
-class WebPageApp extends StatelessWidget {
-
-  WebPageApp(String name, String password) {
-    _name = name;
-    _password = password;
-  }
+class AutoAttendApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: MyHomePage(),
+    return MaterialApp(
+      title: '그룹웨어 자동 출퇴근',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: LoginPage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
-
+class LoginPage extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  Completer<WebViewController> controller = Completer<WebViewController>();
-  WebViewController webViewController;
-  FlutterWebviewPlugin flutterWebviewPlugin;
-  WebView webView;
-  int check = 0;
+
+class _LoginPageState extends State<LoginPage> {
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  String id = "";
+  String pw = "";
+
   @override
   void initState() {
     super.initState();
-    webView = WebView(
-      initialUrl: 'http://gw.unipoint.co.kr',
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (context) {
-        this.controller.complete(context);
-        webViewController = context;
-      },
-    );
-    Timer(
-      Duration(seconds: 2), () {
-        webViewController.evaluateJavascript("document.getElementById('UserName').value = '$_name';");
-        webViewController.evaluateJavascript("document.getElementById('Password').value = '$_password';");
-        webViewController.evaluateJavascript("document.getElementsByTagName('a')[0].click();");
-      }
-    );
-    Timer(
-      Duration(seconds: 5), () {
-        webViewController.evaluateJavascript("var start = document.getElementById('ltGoingHour').value;");
-        webViewController.evaluateJavascript("if(start) document.getElementById('btnAttOut').click(); "
-            " else document.getElementById('btnAttIn').click();");
-        webViewController.evaluateJavascript("document.getElementById('btnAttIn').click();");
-      }
-    );
-    Timer(
-      Duration(seconds: 7), () {
-        SystemNavigator.pop();
-        exit(0);
-      }
-    );
+    // final prefs = await SharedPreferences.getInstance();
+    // id = prefs.getString("id") ?? "";
+    // pw = prefs.getString("pw") ?? "";
+    // if (id != "" && pw != "") {
+    //   Navigator.push(context, MaterialPageRoute(builder: (context) => WebPageApp(id, pw)));
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: webView,
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 24.0),
+          children: <Widget>[
+            SizedBox(height: 80.0),
+            Column(
+              children: <Widget>[
+                Image.asset(
+                  'assets/uni.png',
+                  width: 100,
+                ),
+                SizedBox(height: 16.0),
+                Text('자동 출퇴근 처리'),
+              ],
+            ),
+            SizedBox(height: 80.0),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Username',
+              ),
+            ),
+            SizedBox(height: 12.0),
+            TextField(
+              controller: _passwordController,
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Password',
+              ),
+              obscureText: true,
+            ),
+            ButtonBar(
+              children: <Widget>[
+                RaisedButton(
+                  child: Text('저장하기'),
+                  onPressed: () {
+                    String name;
+                    String password;
+                    if(_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
+                      name = _usernameController.text;
+                      password = _passwordController.text;
+                      // TODO 현재는 입력한 ID와 비밀번호를 넘겨준다.
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => WebPageApp(name, password)));
+                    } else {
+                      name = ""; password = "";
+                      Fluttertoast.showToast(msg: "아이디랑 비밀번호 둘다 입력 필요");
+                    }
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
