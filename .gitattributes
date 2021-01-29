@@ -1,4 +1,4 @@
 *.swift linguist-vendored
 *.kt linguist-vendored
-*.Podfile linguist-vendored
+Podfile linguist-vendored
 *.h linguist-vendored
