@@ -6,17 +6,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-void main() => runApp(MyApp());
+String _name = "";
+String _password = "";
 
-class MyApp extends StatelessWidget {
+class WebPageApp extends StatelessWidget {
+
+  WebPageApp(String name, String password) {
+    _name = name;
+    _password = password;
+  }
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
+    return Scaffold(
+      body: MyHomePage(),
     );
   }
 }
@@ -34,10 +36,6 @@ class _MyHomePageState extends State<MyHomePage> {
   FlutterWebviewPlugin flutterWebviewPlugin;
   WebView webView;
   int check = 0;
-  // TODO 아이디와 비밀번호를 저장해놓고 사용할 수 있게 해야한다.
-  String id = '아이디';
-  String pw = '비밀번호';
-
   @override
   void initState() {
     super.initState();
@@ -51,8 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
     Timer(
       Duration(seconds: 2), () {
-        webViewController.evaluateJavascript("document.getElementById('UserName').value = '$id';");
-        webViewController.evaluateJavascript("document.getElementById('Password').value = '$pw';");
+        webViewController.evaluateJavascript("document.getElementById('UserName').value = '$_name';");
+        webViewController.evaluateJavascript("document.getElementById('Password').value = '$_password';");
         webViewController.evaluateJavascript("document.getElementsByTagName('a')[0].click();");
       }
     );
