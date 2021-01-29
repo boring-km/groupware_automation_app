@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.unipoint.groupware_automation">
    <application
-        android:label="groupware_automation"
-        android:icon="@mipmap/ic_launcher"
+        android:label="자동 출퇴근"
+        android:icon="@mipmap/launcher_icon"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
