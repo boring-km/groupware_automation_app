@@ -67,9 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
       Duration(seconds: 7), () {
         if(Platform.isAndroid) {
           SystemNavigator.pop();
-        } else {
-          exit(0);
         }
+        exit(0);
       }
     );
   }

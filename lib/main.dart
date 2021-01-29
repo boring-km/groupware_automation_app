@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'web.dart';
+
+String id = "";
+String pw = "";
 
 void main() {
   runApp(AutoAttendApp());
@@ -11,11 +14,15 @@ class AutoAttendApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '그룹웨어 자동 출퇴근',
+      title: 'nu!boluf',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(),
+      initialRoute: '/',
+      routes: {
+        '/': (BuildContext context) => LoginPage(),
+        '/web': (BuildContext context) => WebPageApp(id, pw)
+      },
     );
   }
 }
@@ -29,18 +36,27 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  String id = "";
-  String pw = "";
+
+  Future<Null> _getSharedPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    id = prefs.getString("id") ?? "";
+    pw = prefs.getString("pw") ?? "";
+    if (id != "" && pw != "") {
+      Navigator.pushNamed(context, '/web');
+    }
+  }
+
+  Future<Null> _saveSharedPrefs(String id, String pw) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('id', id);
+    prefs.setString('pw', pw);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => WebPageApp(id, pw)));
+  }
 
   @override
   void initState() {
     super.initState();
-    // final prefs = await SharedPreferences.getInstance();
-    // id = prefs.getString("id") ?? "";
-    // pw = prefs.getString("pw") ?? "";
-    // if (id != "" && pw != "") {
-    //   Navigator.push(context, MaterialPageRoute(builder: (context) => WebPageApp(id, pw)));
-    // }
+    _getSharedPrefs();
   }
 
   @override
@@ -58,7 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                   width: 100,
                 ),
                 SizedBox(height: 16.0),
-                Text('자동 출퇴근 처리'),
+                Text('Developed By boring-km'),
               ],
             ),
             SizedBox(height: 80.0),
@@ -88,8 +104,7 @@ class _LoginPageState extends State<LoginPage> {
                     if(_usernameController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
                       name = _usernameController.text;
                       password = _passwordController.text;
-                      // TODO 현재는 입력한 ID와 비밀번호를 넘겨준다.
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => WebPageApp(name, password)));
+                      _saveSharedPrefs(name, password);
                     } else {
                       name = ""; password = "";
                       Fluttertoast.showToast(msg: "아이디랑 비밀번호 둘다 입력 필요");
