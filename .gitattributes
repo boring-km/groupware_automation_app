@@ -1,4 +1,4 @@
-*.swift
-*.kt
-*.Podfile
-*.h
+*.swift linguist-vendored
+*.kt linguist-vendored
+*.Podfile linguist-vendored
+*.h linguist-vendored
