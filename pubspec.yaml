@@ -1,0 +1,24 @@
+name: groupware_automation
+description: 그룹웨어 로그인 및 근태 처리 자동화
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: ^0.3.19+9
+  flutter_webview_plugin: ^0.3.11
+  fluttertoast: ^7.1.6
+
+  cupertino_icons: ^1.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
